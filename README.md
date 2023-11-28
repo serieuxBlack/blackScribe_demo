@@ -17,3 +17,5 @@ User discretion is advised.
 Important Note
 Deployment of this tool requires persistent physical access to the machine in order to inspect or export log files. 
 Network capabilities & AMSI bypass are available in the paid version.
+
+AUTHOR: SerieuxBlack
